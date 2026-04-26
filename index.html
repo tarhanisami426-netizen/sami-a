@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sami AI — حل التمارين بالدارجة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #07080f;
+    --surface: #0f1120;
+    --surface2: #161829;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --text: #eeeef5;
+    --muted: #7b7d9a;
+    --success: #22c55e;
+  }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    direction: rtl;
+    overflow-x: hidden;
+  }
+
+  /* Background effect */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background: rgba(7,8,15,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--accent2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .nav-badge {
+    font-size: 0.7rem;
+    background: rgba(108,99,255,0.12);
+    color: var(--accent2);
+    border: 1px solid rgba(108,99,255,0.25);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .hero {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 4rem 1.5rem 2rem;
+  }
+
+  .hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border2);
+    padding: 6px 16px;
+    border-radius: 30px;
+    margin-bottom: 1.8rem;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 900;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+    color: #fff;
+    letter-spacing: -1px;
+  }
+
+  h1 .grad {
+    background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.8;
+    font-weight: 400;
+  }
+
+  /* Subject tabs */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+
+  .tab {
+    padding: 7px 16px;
+    border-radius: 30px;
+    font-size: 0.82rem;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .tab:hover, .tab.active {
+    background: rgba(108,99,255,0.15);
+    border-color: rgba(108,99,255,0.4);
+    color: var(--accent2);
+  }
+
+  /* Main card */
+  .main-card {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 0 1rem 3rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 12px;
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2px dashed var(--border2);
+    border-radius: 14px;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(108,99,255,0.06);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .upload-text {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .upload-sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 4px;
+    opacity: 0.6;
+  }
+
+  /* Preview */
+  #preview-area {
+    display: none;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 1rem;
+    align-items: center;
+    gap: 12px;
+  }
+
+  #preview-area.show { display: flex; }
+
+  #preview-img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: none;
+  }
+
+  .pdf-icon {
+    width: 56px;
+    height: 56px;
+    background: rgba(239,68,68,0.15);
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .preview-info { flex: 1; }
+  .preview-name { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+  .preview-size { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+  .remove-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.2s;
+  }
+  .remove-btn:hover { color: #ef4444; }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border2);
+  }
+
+  /* Textarea */
+  textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 1rem;
+    color: var(--text);
+    font-size: 0.95rem;
+    resize: none;
+    min-height: 110px;
+    font-family: 'Cairo', sans-serif;
+    direction: rtl;
+    line-height: 1.7;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--muted); opacity: 0.7; }
+
+  /* Subject selector */
+  .subject-row {
+    display: flex;
+    gap: 8px;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+  }
+
+  .subj-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    transition: all 0.15s;
+  }
+  .subj-btn:hover, .subj-btn.sel {
+    background: rgba(108,99,255,0.15);
+    border-color: rgba(108,99,255,0.4);
+    color: var(--accent2);
+  }
+
+  /* Send button */
+  .send-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #6c63ff, #4f46e5);
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 900;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    letter-spacing: 0.3px;
+    transition: opacity 0.2s, transform 0.15s;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .send-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .send-btn:active { transform: scale(0.98); }
+
+  /* Info note */
+  .note {
+    background: rgba(108,99,255,0.08);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 0.8rem;
+    color: var(--accent2);
+    line-height: 1.6;
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  /* Features */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 620px;
+    margin: 0 auto 2rem;
+    padding: 0 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .feat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .feat-icon { font-size: 1.4rem; margin-bottom: 6px; }
+  .feat-title { font-size: 0.78rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .feat-sub { font-size: 0.68rem; color: var(--muted); line-height: 1.4; }
+
+  @media (max-width: 480px) {
+    .features { grid-template-columns: 1fr 1fr; }
+    h1 { font-size: 1.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">📚 Sami AI</div>
+  <div class="nav-badge">🇲🇦 خاص بالمغرب</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-chip">🇲🇦 TCS · SVT · Éco · Maths · Physique</div>
+  <h1>حل التمارين ديالك<br><span class="grad">بالدارجة خطوة بخطوة</span></h1>
+  <p class="subtitle">صور التمرين أو كتبو — وغادي تجيبك الحل بدارجة زوينة مزيانة للبكالوريا والجذع المشترك</p>
+
+  <div class="tabs">
+    <button class="tab active">➗ Maths</button>
+    <button class="tab">⚗️ Physique</button>
+    <button class="tab">🧬 SVT</button>
+    <button class="tab">🧠 Philo</button>
+    <button class="tab">📊 Économie</button>
+  </div>
+</div>
+
+<div class="features">
+  <div class="feat">
+    <div class="feat-icon">📷</div>
+    <div class="feat-title">صورة أو PDF</div>
+    <div class="feat-sub">رفع مباشر من الهاتف أو الكمبيوتر</div>
+  </div>
+  <div class="feat">
+    <div class="feat-icon">🎯</div>
+    <div class="feat-title">خطوة بخطوة</div>
+    <div class="feat-sub">الحل بدارجة وبمنطق واضح</div>
+  </div>
+  <div class="feat">
+    <div class="feat-icon">🇲🇦</div>
+    <div class="feat-title">Curriculum Maroc</div>
+    <div class="feat-sub">حسب برنامج التعليم المغربي</div>
+  </div>
+</div>
+
+<div class="main-card">
+  <div class="card">
+
+    <!-- Upload zone -->
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="fileInput" accept="image/*,.pdf" />
+      <div class="upload-icon">📎</div>
+      <div class="upload-text">اسحب الصورة أو PDF هنا</div>
+      <div class="upload-sub">أو كليك باش تختار الفيشيي — PNG, JPG, PDF</div>
+    </div>
+
+    <!-- Preview -->
+    <div id="preview-area">
+      <img id="preview-img" alt="preview" />
+      <div class="pdf-icon" id="pdf-icon">📄</div>
+      <div class="preview-info">
+        <div class="preview-name" id="preview-name"></div>
+        <div class="preview-size" id="preview-size"></div>
+      </div>
+      <button class="remove-btn" id="removeBtn" title="حذف">✕</button>
+    </div>
+
+    <div class="divider">أو</div>
+
+    <!-- Text area -->
+    <textarea id="exerciseText" placeholder="✏️ كتب التمرين هنا بالكامل..."></textarea>
+
+    <!-- Subject -->
+    <div class="subject-row">
+      <button class="subj-btn sel" data-subj="Maths">➗ Maths</button>
+      <button class="subj-btn" data-subj="Physique-Chimie">⚗️ Physique</button>
+      <button class="subj-btn" data-subj="SVT">🧬 SVT</button>
+      <button class="subj-btn" data-subj="Philo">🧠 Philo</button>
+      <button class="subj-btn" data-subj="Économie">📊 Économie</button>
+    </div>
+
+    <button class="send-btn" id="sendBtn">
+      ⚡ حل ليا هاد التمرين
+    </button>
+
+    <div class="note">
+      غادي يفتح ليك Claude AI مع التمرين محضر — كليك "Send" وجيبك الحل بالدارجة 🚀
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Tabs
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+
+  // Subject buttons
+  let selectedSubj = 'Maths';
+  document.querySelectorAll('.subj-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.subj-btn').forEach(x => x.classList.remove('sel'));
+      btn.classList.add('sel');
+      selectedSubj = btn.dataset.subj;
+    });
+  });
+
+  // File upload
+  let uploadedFile = null;
+
+  const fileInput = document.getElementById('fileInput');
+  const uploadZone = document.getElementById('uploadZone');
+  const previewArea = document.getElementById('preview-area');
+  const previewImg = document.getElementById('preview-img');
+  const pdfIcon = document.getElementById('pdf-icon');
+  const previewName = document.getElementById('preview-name');
+  const previewSize = document.getElementById('preview-size');
+  const removeBtn = document.getElementById('removeBtn');
+
+  function showPreview(file) {
+    uploadedFile = file;
+    previewName.textContent = file.name;
+    previewSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+    previewArea.classList.add('show');
+    uploadZone.style.display = 'none';
+
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => { previewImg.src = e.target.result; previewImg.style.display = 'block'; };
+      reader.readAsDataURL(file);
+      pdfIcon.style.display = 'none';
+    } else {
+      pdfIcon.style.display = 'flex';
+      previewImg.style.display = 'none';
+    }
+  }
+
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) showPreview(e.target.files[0]);
+  });
+
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) showPreview(e.dataTransfer.files[0]);
+  });
+
+  removeBtn.addEventListener('click', () => {
+    uploadedFile = null;
+    fileInput.value = '';
+    previewArea.classList.remove('show');
+    previewImg.style.display = 'none';
+    pdfIcon.style.display = 'none';
+    uploadZone.style.display = 'block';
+  });
+
+  // Send to Claude
+  document.getElementById('sendBtn').addEventListener('click', () => {
+    const text = document.getElementById('exerciseText').value.trim();
+
+    if (!text && !uploadedFile) {
+      alert('كتب التمرين أو رفع صورة/PDF أولاً!');
+      return;
+    }
+
+    let prompt = `أنا تلميذ مغربي، عندي تمرين د ${selectedSubj} محتاج الحل بالدارجة المغربية خطوة بخطوة.\n\n`;
+
+    if (uploadedFile) {
+      prompt += `رفعت صورة/PDF ديال التمرين اسمو: "${uploadedFile.name}".\n`;
+      if (text) prompt += `\nوهاد التمرين بالكتابة:\n${text}`;
+      else prompt += `\nشوف الصورة/PDF اللي رفعتها وحل التمرين.`;
+    } else {
+      prompt += `هاد هو التمرين:\n\n${text}`;
+    }
+
+    prompt += `\n\nحلها ليا خطوة بخطوة بالدارجة المغربية مع شرح كل خطوة مزيان.`;
+
+    const encoded = encodeURIComponent(prompt);
+    window.open(`https://claude.ai/new?q=${encoded}`, '_blank');
+  });
+</script>
+
+</body>
+</html>
